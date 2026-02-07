@@ -1,90 +1,122 @@
-# Автотесты Playwright + Pytest
+# Playwright Autotests
 
-![Python](https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python&logoColor=white)
-![Playwright](https://img.shields.io/badge/Playwright-Test-green?style=for-the-badge&logo=playwright&logoColor=white)
-![Pytest](https://img.shields.io/badge/Pytest-Framework-yellow?style=for-the-badge&logo=pytest&logoColor=white)
+E2E-тесты для [SauceDemo](https://www.saucedemo.com/) — учебного интернет-магазина.
 
-Этот проект содержит набор автоматизированных тестов для демонстрационного веб-сайта [SauceDemo](https://www.saucedemo.com/).
-Тесты написаны на Python с использованием фреймворка **Playwright** для взаимодействия с браузером и **Pytest** для организации тестов.
+![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-green?logo=playwright&logoColor=white)
+![CI](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?logo=github-actions&logoColor=white)
 
-## Функциональность
+## Что это?
 
-Все автотесты взаимодействуют с учебным сайтом **SauceDemo**.
+Набор автотестов, покрывающих основные сценарии интернет-магазина:
+- Авторизация (позитивные и негативные кейсы)
+- Работа с корзиной
+- Оформление заказа (E2E)
+- Сортировка товаров
+- Выход из системы
 
-### 1. Модуль tests/test_auth.py (Авторизация)
-Этот блок проверяет, что пользователей пускает на сайт только с правильными данными, и не пускает с ошибками.
+Тесты написаны на **Playwright** (современный инструмент для браузерной автоматизации) и организованы через **Pytest**.
 
-- **Успешный вход**: Вводит `standard_user` / `secret_sauce` -> Проверяет, что мы попали в магазин (`/inventory.html`).
-- **Ошибки**:
-    - Ввод несуществующего логина/пароля -> Ошибка "Username and password do not match...".
-    - Пустые поля -> Ошибки "Username is required" или "Password is required".
-    - Закрытие окна ошибки -> Проверяет, что красный крестик работает и сообщение пропадает.
+## Быстрый старт
 
-### 2. Модуль tests/test_shop.py (Магазин)
-Здесь проверяется основной путь покупателя (User Flow).
-
-- **Работа с корзиной**:
-    - Нажать "Add to cart" -> Проверка: у иконки корзины появилась цифра, товар внутри.
-    - Нажать "Remove" -> Проверка: товар исчез.
-- **Оформление заказа (E2E)**:
-    - Добавить рюкзак -> Перейти в корзину -> Checkout -> Заполнить имя/индекс -> Finish.
-    - **Результат**: Видим заголовок "Thank you for your order!".
-- **Сортировка**:
-    - Выбираем "Price (low to high)" -> Проверяем, что первый товар дешевле последнего.
-    - Выбираем "Price (high to low)" -> Наоборот.
-- **Выход (Logout)**: Открыть меню и нажать Logout -> Проверяем, что вернулись на экран логина.
-
-## Установка и Запуск
-
-### Предварительные требования
-- Python 3.8+
-- Установленный браузер (Chromium, Firefox или WebKit)
-
-### Шаги установки
-
-1.  **Клонируйте репозиторий** (или скачайте архив):
-    ```bash
-    git clone https://github.com/belwrex/autotests-project.git
-    cd autotests-project
-    ```
-
-2.  **Установите зависимости**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-3.  **Установите браузеры для Playwright**:
-    ```bash
-    playwright install chromium
-    ```
-
-### Запуск тестов
-
-**Обычный запуск (с отображением браузера):**
 ```bash
+# Клонировать
+git clone https://github.com/Para-Bellum37/playwright-autotests-portfolio.git
+cd playwright-autotests-portfolio
+
+# Установить зависимости
+pip install -r requirements.txt
+playwright install chromium
+
+# Запустить тесты
 pytest
 ```
 
-**Запуск в фоновом режиме (headless):**
+## Покрытие тестами
+
+### test_auth.py — Авторизация
+
+| Тест | Что проверяет |
+|------|---------------|
+| Успешный вход | Валидные креды → переход в каталог |
+| Неверные данные | Ошибка "Username and password do not match" |
+| Пустой логин | Ошибка "Username is required" |
+| Пустой пароль | Ошибка "Password is required" |
+| Закрытие ошибки | Кнопка × скрывает сообщение |
+
+### test_shop.py — Магазин
+
+| Тест | Что проверяет |
+|------|---------------|
+| Добавление в корзину | Товар появляется, badge обновляется |
+| Удаление из корзины | Товар исчезает |
+| Полный checkout | Корзина → данные → подтверждение → "Thank you" |
+| Счётчик корзины | Добавить 2 товара → badge = "2" |
+| Сортировка Low→High | Первый товар дешевле последнего |
+| Сортировка High→Low | Первый товар дороже последнего |
+| Logout | Меню → Logout → возврат на логин |
+
+## Варианты запуска
+
 ```bash
+# С браузером (для отладки)
+pytest
+
+# Без UI (для CI)
 pytest --headless
+
+# Замедленный режим (для демо)
+pytest --slowmo 1000
+
+# С генерацией Allure-отчёта
+pytest --alluredir=allure-results
+allure serve allure-results
 ```
 
-**Замедленный режим (для демонстрации):**
-```bash
-pytest --slowmo 1000
-```
-(По-умолчанию - настроено в `pytest.ini`)
+## CI/CD
+
+Тесты запускаются автоматически при каждом пуше в `main`.
+
+**Что делает пайплайн:**
+1. Чекаут кода
+2. Установка Python 3.11
+3. Установка зависимостей + Playwright + Chromium
+4. Запуск тестов в headless-режиме
+5. Сохранение Allure-артефактов
+
+Конфиг: [`.github/workflows/tests.yml`](.github/workflows/tests.yml)
 
 ## Структура проекта
 
-```text
-.
-├── tests/                  # Папка с тестами
-│   ├── conftest.py         # Общие фикстуры (настройка браузера, авторизация)
-│   ├── test_auth.py        # Тесты страницы авторизации
-│   └── test_shop.py        # Тесты функционала магазина
-├── pytest.ini              # Конфигурация запуска тестов
-├── requirements.txt        # Список зависимостей
-└── README.md               # Документация
 ```
+.
+├── .github/workflows/tests.yml   # CI-конфиг
+├── tests/
+│   ├── conftest.py               # Фикстуры (авторизация)
+│   ├── test_auth.py              # Тесты логина
+│   ├── test_shop.py              # Тесты магазина
+│   └── api/README.md             # [stub] — см. ниже
+├── docker/README.md              # [stub] — см. ниже
+├── pytest.ini                    # Настройки pytest
+├── requirements.txt              # Зависимости
+└── README.md
+```
+
+## Расширяемость
+
+Проект подготовлен для роста. Две папки оставлены как заглушки с инструкциями:
+
+| Папка | Статус | Почему stub |
+|-------|--------|-------------|
+| `tests/api/` | Заглушка | SauceDemo не имеет публичного API |
+| `docker/` | Заглушка | Для демо-проекта избыточен — CI работает без него |
+
+Каждая папка содержит README с объяснением, когда и как её активировать.
+
+## Технологии
+
+- **Python 3.10+** — основной язык
+- **Playwright** — браузерная автоматизация
+- **Pytest** — тестовый фреймворк
+- **Allure** — генерация отчётов
+- **GitHub Actions** — CI/CD

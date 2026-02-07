@@ -3,11 +3,7 @@ from playwright.sync_api import Page, expect
 
 @pytest.fixture(scope="function")
 def authorized_page(page: Page):
-    """
-    Фикстура, которая возвращает авторизованную страницу.
-    Используется только в тестах, где нужна предварительная авторизация.
-    УБРАН autouse=True, чтобы не ломать тесты на авторизацию.
-    """
+    """Авторизованная страница для тестов, требующих входа."""
     page.goto("https://www.saucedemo.com/")
     page.locator('[data-test="username"]').fill("standard_user")
     page.locator('[data-test="password"]').fill("secret_sauce")
